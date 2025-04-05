@@ -3,14 +3,11 @@ from proccess_test2 import main2,own_mem2
 from proccess_test import main,own_mem
 
 if __name__ == "__main__":
-    mem_handler = shared_mem()
+    mem_handler = shared_mem(sleep=1/5555)
     
     mem_handler.add_worker(main2,standard_mem=own_mem2) # mainthread
     
-    
     mem_handler.add_worker(main,standard_mem=own_mem) # debugwindow
-    
-    
     
     mem_handler.start_workers()
     

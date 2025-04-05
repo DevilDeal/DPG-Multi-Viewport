@@ -33,10 +33,11 @@ def receive(receiver,awaits:bool = True):
         while receiver.empty():
             
             pass
+    
     if not receiver.empty():
         value = receiver.get()
         return value
-
+    
 def update_var(sender_interface,variable_str:str ,value,memory_space:int = 0,):
     
     sender_interface.put(["var",memory_space,variable_str,value])

@@ -1,10 +1,10 @@
-from multiprocessing import Process,Queue,SimpleQueue
+import multiprocessing as mp
 from standard_mem import mem_obj
-
-
+import time
+import threading
 
 class shared_mem():
-    def __init__(self,target_fps :int = None) -> None:
+    def __init__(self,target_fps :int = None,sleep :float = 0.0) -> None:
        
         self.workers : int = 0
         self.worker_list : list = []
@@ -13,8 +13,9 @@ class shared_mem():
         self.recv_queues = []
         self.send_queues = []
         self.lock = False
-      
-    def add_worker(self,func,arg = None,identity : str|int = None,standard_mem = None):
+        self.sleep = sleep
+        
+    def add_worker(self,func,arg = None,identity : str|int = None,standard_mem : bool = None):
         if identity == None:
             identity = self.workers
 
@@ -24,27 +25,32 @@ class shared_mem():
             thread = standard_mem(self.workers,func,arg,identity)
 
         self.worker_list.append(thread)
-        recv_queue = SimpleQueue()
-        send_queue = SimpleQueue()
+        recv_queue = mp.SimpleQueue()
+        send_queue = mp.SimpleQueue()
         self.recv_queues.append(recv_queue)
         self.send_queues.append(send_queue)
         self.workers += 1
         return thread
     
-    def start_workers(self):
+    def start_workers(self,multiprocessing:bool = True,daemon:bool = True):
         for worker in self.worker_list:
             if worker.arg != None:
-                queue = SimpleQueue()
+                queue = mp.SimpleQueue()
                 self.share_task.append(queue)
-                Process(target=worker.func,args=(self.recv_queues[worker.id],self.send_queues[worker.id],worker.id,self.share_task[worker.id],self,worker.arg,),daemon=True).start()
-               
+                if multiprocessing:
+                    mp.Process(target=worker.func,args=(self.recv_queues[worker.id],self.send_queues[worker.id],worker.id,self.share_task[worker.id],self,worker.arg,),daemon=daemon).start()
+                else:
+                    
+                    threading.Thread(target=worker.func,args=(self.recv_queues[worker.id],self.send_queues[worker.id],worker.id,self.share_task[worker.id],self,worker.arg,),daemon=daemon).start()
                 #worker.func(self.recv_queues[worker.id],self.send_queues[worker.id],worker.id,worker.arg,)
                 
             else:
-                queue = SimpleQueue()
+                queue = mp.SimpleQueue()
                 self.share_task.append(queue)
-                Process(target=worker.func,args=(self.recv_queues[worker.id],self.send_queues[worker.id],worker.id,self.share_task[worker.id],self),daemon=True).start()
-                
+                if multiprocessing:
+                    mp.Process(target=worker.func,args=(self.recv_queues[worker.id],self.send_queues[worker.id],worker.id,self.share_task[worker.id],self),daemon=daemon).start()
+                else:
+                    threading.Thread(target=worker.func,args=(self.recv_queues[worker.id],self.send_queues[worker.id],worker.id,self.share_task[worker.id],self),daemon=daemon).start()
                 #worker.func(self.recv_queues[worker.id],self.send_queues[worker.id],worker.id)
             
 
@@ -133,5 +139,7 @@ class shared_mem():
                 if self.worker_list[current_share_index].mode == "all":
                     if self.send_queues[current_share_index].empty():
                         self.send_queues[current_share_index].put(self.worker_list)
+            
 
-           
+            if self.sleep !=0.0:
+                time.sleep(self.sleep)
