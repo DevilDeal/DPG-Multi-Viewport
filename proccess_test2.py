@@ -19,14 +19,14 @@ def main2(send,recv,own_id,change_mode,parent):
     dpg.create_context()
     dpg.create_viewport(title=TITLE,width=400, height=222,x_pos=-10)
     dpg.setup_dearpygui()
-   
+    request_memory(parent,0,own_id)
+        
+    mem_space = receive(recv,awaits=True)
     
 
     with dpg.window(label="test",no_title_bar=False,pos=(0,0),width=222-1,height=222-1,no_resize=True,no_background=False) as primary_window:
         test_text =dpg.add_text("here")
-        request_memory(parent,0,own_id)
         
-        mem_space = receive(recv,awaits=True)
         mem_space.test_text_tag = test_text
         
         update_memory(send,memory=mem_space)
@@ -51,8 +51,8 @@ def main2(send,recv,own_id,change_mode,parent):
         mem_space = receive(recv,awaits=True)
         
         if mem_space!= None:
-            if mem_space.test_text_tag!= None:
-                dpg.set_value(mem_space.test_text_tag,mem_space.test_text_value)
+            
+                dpg.set_value(test_text,mem_space.test_text_value)
         
         
         dpg.render_dearpygui_frame()

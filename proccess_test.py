@@ -25,8 +25,9 @@ def main(send,recv,own_id,change_mode,parent):
     
     def callback_input_text(user,data):
         
+        mem_space.test_text_value = data
         update_var(send,"test_text_value",data,0)
-        #update_memory(send,memory=mem_space)
+        update_memory(send,memory=mem_space)
 
     with dpg.window(label="test",no_title_bar=False,pos=(0,0),width=222-1,height=222-1,no_resize=True,no_background=False) as primary_window:
         test_input = dpg.add_input_text(label= "change value",default_value="here",callback=callback_input_text)
