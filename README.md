@@ -1,2 +1,2 @@
-# DPG-Multi_instance
-DearPyGui multi instances with a memory manager
+# DPG-Multi-Viewport
+DearPyGui multi Viewport/processes with a memory manager
